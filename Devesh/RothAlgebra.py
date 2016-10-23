@@ -58,10 +58,3 @@ class RothVariable(object):
 		else:
 			return self.name
 
-
-# a=RothVariable(1,0,'D')
-# b=RothVariable(1,0,'D')
-# d=RothVariable(1,1,'D')
-
-# c=a & b & d
-# print c
