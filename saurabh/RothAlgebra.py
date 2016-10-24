@@ -59,6 +59,7 @@ class RothVariable(object):
 			return self.name
 
 
+
 a=RothVariable(1,0,'D')
 b=RothVariable(0,0,'0')
 
