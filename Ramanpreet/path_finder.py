@@ -5,7 +5,7 @@ from pyeda.inter import*
 
 #Or(Xor(And(Not(Or(Or(And(a, b), c), d)), d), c), And(b, d))
 
-Fanin=[None,None,None,None,[And,0,1],[Or,4,2],[Or,4,5],[And,6,3]]
+Fanin=[None,None,None,None,[And,0,1],[Or,4,2],[And,5,3],[And,6,3]]
 
 Fanout=[[] for i in range(len(Fanin))]
 

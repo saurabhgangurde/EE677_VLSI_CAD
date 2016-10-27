@@ -1,6 +1,6 @@
 from pyeda.inter import*
 from RothAlgebra import RothVariable
-
+from copy import deepcopy
 
 #Or(Xor(And(Not(Or(Or(And(a, b), c), d)), d), c), And(b, d))
 
@@ -190,22 +190,33 @@ def propagate(Fanout,stuckAtNode,stuckAtFault):
 
 	NodeOutput.append(tempNodeOutput)
 
-# def backtrace(Fanin,NodeOutput):
-
-# 	backtraceList=[]
-
-# 	for i in range(len(NodeOutput)):
-# 		if NodeOutput[len(NodeOutput)-i]==RothVariable(1,1) or\
-# 			NodeOutput[len(NodeOutput)-i]==RothVariable(0,0):
-# 			backtraceList.append(len(NodeOutput)-i)
-
-# 	while not(len(backtraceList==0)):
-
-# 		fanin_current_back_node=Fanin[backtraceList[0]]
+finnalOutput=[]
+def backtrace(Fanin,NodeOutput):
 
 
 
-print(str(Fanin[5][0]))
+	backtraceList=[]
+
+	for i in range(len(NodeOutput)):
+		if NodeOutput[len(NodeOutput)-i]==RothVariable(1,1):
+			backtraceList.append([len(NodeOutput)-i,1])
+		if NodeOutput[len(NodeOutput)-i]==RothVariable(0,0):
+			backtraceList.append([len(NodeOutput)-i,0])
+			
+
+	while not(len(backtraceList==0)):
+
+		fanin_current_back_node=Fanin[backtraceList[0][0]]
+		if(fanin_current_back_node[0]== And):
+			if(NodeOutput[fanin_current_back_node[1]==RothAlgebra('X','X')]):
+				if not(NodeOutput[fanin_current_back_node[2]]==RothAlgebra('X','X')\
+					or 
+				if(backtraceList[0][1]==1):
+					NodeOutput[fanin_current_node]
+
+
+
+
 propagate(Fanout,4,0)
 print(NodeOutput)
 

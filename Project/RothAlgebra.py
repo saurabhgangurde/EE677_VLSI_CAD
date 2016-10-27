@@ -18,6 +18,8 @@ class RothVariable(object):
 		else:
 			self.name='X'
 
+
+	################defining operations on Roth's Varibles using funtion overloading###############
 	def __and__(self,b):
 
 		if(self.name=='X' or b.name=='X'):

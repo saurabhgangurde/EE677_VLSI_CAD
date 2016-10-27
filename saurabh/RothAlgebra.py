@@ -58,7 +58,7 @@ class RothVariable(object):
 		else:
 			return False
 
-	def __str__(self):
+	def __repr__(self):
 		if self.name==None:
 			return "None"
 		else:
@@ -67,7 +67,7 @@ class RothVariable(object):
 
 
 # a=[]
-d=RothVariable(1,0,'D')
+#d=RothVariable(1,0,'D')
 #b=-d
 
 #print(b)
