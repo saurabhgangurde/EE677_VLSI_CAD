@@ -25,12 +25,12 @@ class RothVariable(object):
 		else:
 			return RothVariable((self.correct & b.correct),(self.faulty & b.faulty) )
 
-	def __not__(self):
+	def __invert__(self):
 
-		if(self.name=='X' or b.name=='X'):
+		if(self.name=='X'):
 			raise "error cannot do operations with X " 
 		else:
-			return RothVariable((not self.correct),(not self.faulty) )
+			return RothVariable(int(not self.correct),int(not self.faulty) )
 
 	def __or__(self,b):
 
@@ -52,16 +52,31 @@ class RothVariable(object):
 		else:
 			return RothVariable((self.correct | b.correct),(self.faulty | b.faulty) )
 
-	def __str__(self):
+	def __eq__(self,b):
+		if self.name==b.name:
+			return True
+		else:
+			return False
+
+	def __repr__(self):
 		if self.name==None:
 			return "None"
 		else:
 			return self.name
 
 
-# a=RothVariable(1,0,'D')
-# b=RothVariable(1,0,'D')
-# d=RothVariable(1,1,'D')
+
+# a=[]
+# d=RothVariable(1,0,'D')
+# b=~d
+# a.append(b)
+# a.append(d)
+# print(a)
+# d=RothVariable('X','X','D')
+
+# print(b)
+# print(b==d)
+# #print d & b
 
 # c=a & b & d
 # print c

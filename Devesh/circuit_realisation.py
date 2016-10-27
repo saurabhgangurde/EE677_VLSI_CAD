@@ -24,4 +24,4 @@ for i in range(len(Fanin)):							#i is index of node for which Fanout is to be 
 
 # c=Fanin[6][0](Fanin[6][1],Fanin[6],[2])
 # print (c)
-# print (Fanout)
+print (Fanout)
