@@ -53,6 +53,7 @@ class RothVariable(object):
 			return RothVariable((self.correct | b.correct),(self.faulty | b.faulty) )
 
 	def __eq__(self,b):
+
 		if self.name==b.name:
 			return True
 		else:
@@ -67,15 +68,15 @@ class RothVariable(object):
 
 
 # a=[]
-# d=RothVariable(1,0,'D')
-# b=~d
+d=RothVariable(1,0,'D')
+b=~d
 # a=[b,d]
+# c=[b,d,b]
+# #print(b)
+# # d=RothVariable('X','X','D')
 
-#print(b)
-# d=RothVariable('X','X','D')
-
-# print(b)
-# print(b==d)
+# # print(b)
+# print(a==b)
 # #print d & b
 
 # c=a & b & d

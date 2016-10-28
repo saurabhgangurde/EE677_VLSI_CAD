@@ -258,7 +258,7 @@ class CircuitTree(object):
 		for path in paths:
 
 			if len(self._Fanout[path[0]])==0:
-				return tempNodeOutput
+				return [tempNodeOutput]
 
 			else:
 				fanin_next_node=Fanin[path[1]]
@@ -281,8 +281,11 @@ class CircuitTree(object):
 							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput_copy)
 
 							# print("choice 1 ans:",vector)
-							if not (vector==-1):
-								vectors.append(vector)
+							if not (vector==-1 or len(vector)==0):
+
+								for entry in vector:
+									#print("appending vector:",entry)
+									vectors.append(entry)
 
 
 							#################recursion for second decision##########################
@@ -299,7 +302,10 @@ class CircuitTree(object):
 							# print("choice 2 ans:",vector)
 
 							if not (vector==-1 or len(vector)==0 ):
-								vectors.append(vector)
+								for entry in vector:
+									#print("appending vector:",entry)
+									vectors.append(entry)
+								
 
 							####################################################################
 	
@@ -317,7 +323,9 @@ class CircuitTree(object):
 
 							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput)
 							if not (vector==-1 or len(vector==0)):
-								vectors.append(vector)
+								for entry in vector:
+									#print("appending vector:",entry)
+									vectors.append(entry)
 
 		return vectors
 
@@ -336,66 +344,71 @@ class CircuitTree(object):
 
 def backTrace(tree,NodeOutputs,no_inputs):
 
-		outputAssignments=[]
+	outputAssignments=[]
 
-		for i in range(len(NodeOutputs)):
-			tempNodeOutput=NodeOutputs[i]
+	for i in range(len(NodeOutputs)):
 
-			tree.setOutputs(NodeOutputs[i])
-			backTraceList=[j for j in range(no_inputs-1,len(NodeOutputs[i])) if NodeOutputs[i][j]==ONE or NodeOutputs[i][j]==ZERO]
-			print(backTraceList)
-			while not(len(backTraceList)==0):
+		tempNodeOutput=NodeOutputs[i]
 
-				current_node=tree.getNode(backTraceList[0])
-				# print(current_node)
-				del backTraceList[0]
+		tree.setOutputs(NodeOutputs[i])
 
-				if current_node.getOperation()=="And" or current_node.getOperation()=="Nand":
+		backTraceList=[j for j in range(no_inputs-1,len(NodeOutputs[i])) if NodeOutputs[i][j]==ONE or NodeOutputs[i][j]==ZERO]
 
-					
-					if current_node.getOutput()==ONE:
-						# print("here")
-						current_node_inputs=current_node.getInputs()
+		while not(len(backTraceList)==0):
 
-						# print(current_node)
+			current_node=tree.getNode(backTraceList[0])
+	
+			del backTraceList[0]
 
-						if current_node_inputs[0].getOutput()==X and current_node_inputs[1].getOutput()==X:
-							tempNodeOutput[current_node_inputs[0].getNumber()]=ONE
-							tempNodeOutput[current_node_inputs[1].getNumber()]=ONE
-							backTraceList.append(current_node_inputs[0].getNumber())
-							backTraceList.append(current_node_inputs[1].getNumber())
-						else:
+			if current_node.getOperation()=="And" or current_node.getOperation()=="Nand":
 
-							if not(current_node_inputs[0].getOutput()==ONE and \
-								current_node_inputs[1].getOutput()==ONE):
-								return -1
+				
+				if current_node.getOutput()==ONE:
 
+					current_node_inputs=current_node.getInputs()
+
+
+					if current_node_inputs[0].getOutput()==X and current_node_inputs[1].getOutput()==X:
+						tempNodeOutput[current_node_inputs[0].getNumber()]=ONE
+						tempNodeOutput[current_node_inputs[1].getNumber()]=ONE
+						backTraceList.append(current_node_inputs[0].getNumber())
+						backTraceList.append(current_node_inputs[1].getNumber())
 					else:
 
-						tempNodeOutput[current_node_inputs[0].getNumber()]=ZERO
-						tempNodeOutput[current_node_inputs[1].getNumber()]=X
 
-						tempNodeOutput_copy1=deepcopy(tempNodeOutput)
-						tree_copy1=deepcopy(tree)
+						if not(current_node_inputs[0].getOutput()==ONE and \
+							current_node_inputs[1].getOutput()==ONE):
+							break
 
-						list1=backTrace(tree_copy1,tempNodeOutput_copy1,no_inputs)
+				else:
 
-						if not (list1==-1):
-							tempNodeOutput.append(list1)
+					tempNodeOutput[current_node_inputs[0].getNumber()]=ZERO
+					tempNodeOutput[current_node_inputs[1].getNumber()]=X
 
-						tempNodeOutput[current_node_inputs[0].getNumber()]=ONE
-						tempNodeOutput[current_node_inputs[1].getNumber()]=ZERO
+					tempNodeOutput_copy1=deepcopy(tempNodeOutput)
+					tree_copy1=deepcopy(tree)
 
-						tempNodeOutput_copy1=deepcopy(tempNodeOutput)
-						tree_copy1=deepcopy(tree)
+					list1=backTrace(tree_copy1,tempNodeOutput_copy1,no_inputs)
 
-						list1=backTrace(tree_copy1,tempNodeOutput_copy1,no_inputs)
+					if not (list1==-1):
+						tempNodeOutput.append(list1)
 
-						if not (list1==-1):
-							tempNodeOutput.append(list1)
+					tempNodeOutput[current_node_inputs[0].getNumber()]=ONE
+					tempNodeOutput[current_node_inputs[1].getNumber()]=ZERO
 
-			outputAssignments.append(tempNodeOutput)			
+					tempNodeOutput_copy1=deepcopy(tempNodeOutput)
+					tree_copy1=deepcopy(tree)
 
+					list1=backTrace(tree_copy1,tempNodeOutput_copy1,no_inputs)
+
+					if not (list1==-1):
+						tempNodeOutput.append(list1)
+
+		outputAssignments.append(tempNodeOutput)			
+
+	if len(outputAssignments)==0:
+		return -1
+	else:
 		return outputAssignments
 
 
@@ -448,31 +461,13 @@ tree=CircuitTree()
 tree.createTree(Fanin)
 tree.createFanout(Fanin)
 
-# pathFinder(tree._Fanout,5,paths,p1)
-# print(paths)
-
-# pathFinder(tree._Fanout,6,paths,p1)
-# print(paths)
-
-
-
-# print(tree)
-
-# tree.displayFanout()
-
-# path=[]
-# paths=[]
-
-
-
 
 NodeOutputs=tree.propagate(4,0,Fanin)
 
 print(NodeOutputs)
 
-# finalAssignments=backTrace(tree,NodeOutputs,4)
-
-# print(finalAssignments)
+finalAssignments=backTrace(tree,NodeOutputs,4)
+print(finalAssignments)
 
 
 
