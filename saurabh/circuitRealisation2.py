@@ -1,6 +1,7 @@
 
 #from pyeda.inter import*
 from RothAlgebra import RothVariable
+from copy import deepcopy
 
 ZERO=RothVariable(0,0)
 ONE=RothVariable(1,1)
@@ -67,6 +68,7 @@ class CircuitTree(object):
 				input1=self._nodes[Fanin[i][1]]
 				self._nodes.append(Node(i,Fanin[i][0],input1))
 			else:
+
 				input1=self._nodes[Fanin[i][1]]
 				input2=self._nodes[Fanin[i][2]]
 				self._nodes.append(Node(i,Fanin[i][0],input1,input2))
@@ -93,147 +95,233 @@ class CircuitTree(object):
 
 	def propagate(self,stuckAtNode,stuckAtFault,Fanin):
 
-
-		pathFinder(self._Fanout,stuckAtNode)
-
 		#print (paths)
 
-		for path in paths:
-			tempNodeOutput=[X for i in range(len(self._nodes))]
-			if stuckAtFault==0:
-				tempNodeOutput[stuckAtNode]=D
-				
-			else:
-				tempNodeOutput[stuckAtNode]=DBAR
-
+		tempNodeOutput=[X for i in range(len(self._nodes))]
+		if stuckAtFault==0:
+			tempNodeOutput[stuckAtNode]=D
 			
-			# print(tempNodeOutput)
-			for i in range(len(path)):
+		else:
+			tempNodeOutput[stuckAtNode]=DBAR
+
+		tempNodeOutput_copy=deepcopy(tempNodeOutput)
+
+		print("going in recursive propagate")
+
+		return self.recursive_propagate(stuckAtNode,Fanin,tempNodeOutput_copy)
+
+		# 	print(path)
+		# 	for i in range(len(path)):
 
 				
-				if path[i]==stuckAtNode:
-					pass
-				else:
-					fanin_current_node=Fanin[path[i]]
+		# 		if path[i]==stuckAtNode:
+		# 			pass
+		# 		else:
+		# 			fanin_current_node=Fanin[path[i]]
+
+		# 			print(fanin_current_node)
+
+		# 			#############if operation is and or nand######################
+
+		# 			if fanin_current_node[0]=="And" or fanin_current_node[0]=="Nand":
+		# 				if fanin_current_node[1]==path[i-1]:
+
+		# 					if tempNodeOutput[fanin_current_node[2]]== X:	## should add equality operator overload in class
+
+		# 						tempNodeOutput[fanin_current_node[2]]=ONE	
+
+		# 						tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] 
+		# 						print("irst if and")
+		# 						print(fanin_current_node)
+		# 						print(tempNodeOutput)
+
+		# 						if fanin_current_node[0]=="Nand":
+		# 							tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
+		# 						# print (path[i],tempNodeOutput[path[i]])
+
+		# 					else:
+
+		# 						tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] & tempNodeOutput[fanin_current_node[2]]
+
+		# 						if fanin_current_node[0]=="Nand":
+		# 							tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
+
+		# 						# print (path[i],tempNodeOutput[path[i]])
+
+		# 						if not (tempNodeOutput[path[i]]==D or tempNodeOutput[path[i]]==DBAR):
+		# 							print("inside break and1")
+		# 							break
+
+		# 				else:
+
+
+		# 					if tempNodeOutput[fanin_current_node[1]]== X:	
+
+		# 						tempNodeOutput[fanin_current_node[1]]=RothVariable(1,1)	
+
+		# 						tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[2]] 
+
+		# 						if fanin_current_node[0]=="Nand":
+		# 							tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
+		# 						# print (path[i],tempNodeOutput[path[i]])
+
+		# 					else:
+
+		# 						print("HERE")
+		# 						tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] & tempNodeOutput[fanin_current_node[2]]
+
+		# 						print(tempNodeOutput)
+		# 						if fanin_current_node[0]=="Nand":
+		# 							tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
+
+		# 						# print (path[i],tempNodeOutput[path[i]])
+
+		# 						if not (tempNodeOutput[path[i]]==D or tempNodeOutput[path[i]]==DBAR):
+		# 							print("inside break and2")
+		# 							break
+
+
+		# 			############################# if operation is Or or NOR####################################
+		# 			elif fanin_current_node[0]=="Or" or fanin_current_node[0]=="Nor":
+		# 				if fanin_current_node[1]==path[i-1]:
+
+		# 					if tempNodeOutput[fanin_current_node[2]]== X:	## should add equality operator overload in class
+
+		# 						tempNodeOutput[fanin_current_node[2]]=ZERO	
+
+		# 						tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] 
+
+		# 						if fanin_current_node[0]=="Nor":
+		# 							tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
+
+		# 						#print (path[i],tempNodeOutput[path[i]])
+
+
+		# 					else:
+
+		# 						tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] & tempNodeOutput[fanin_current_node[2]]
+
+		# 						if fanin_current_node[0]=="Nor":
+		# 							tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
+
+		# 						#print (path[i],tempNodeOutput[path[i]])
+
+		# 						if not (tempNodeOutput[path[i]]==D or tempNodeOutput[path[i]]==DBAR):
+		# 							break
+
+		# 				else:
+
+		# 					if tempNodeOutput[fanin_current_node[1]]== X:	## should add equality operator overload in class
+
+		# 						tempNodeOutput[fanin_current_node[1]]=ZERO	
+
+		# 						tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[2]] 
+
+		# 						if fanin_current_node[0]=="Nor":
+		# 							tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
+
+		# 						#print (path[i],tempNodeOutput[path[i]])
 
 
 
-					#############if operation is and or nand######################
+		# 					else:
 
-					if fanin_current_node[0]=="And" or fanin_current_node[0]=="Nand":
-						if fanin_current_node[1]==path[i-1]:
 
-							if tempNodeOutput[fanin_current_node[2]]== X:	## should add equality operator overload in class
+		# 						tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] | tempNodeOutput[fanin_current_node[2]]
 
-								tempNodeOutput[fanin_current_node[2]]=ONE	
+		# 						if fanin_current_node[0]=="Nor":
+		# 							tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
 
-								tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] 
+		# 						#print (path[i],tempNodeOutput[path[i]])
 
-								if fanin_current_node[0]=="Nand":
-									tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
-								# print (path[i],tempNodeOutput[path[i]])
+		# 						if not (tempNodeOutput[path[i]]==D or tempNodeOutput[path[i]]==DBAR):
+		# 							break
 
-							else:
+		# 			elif fanin_current_node[0]=="Not":
+		# 				tempNodeOutput[path[i]]=~tempNodeOutput[path[i-1]]
 
-								tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] & tempNodeOutput[fanin_current_node[2]]
 
-								if fanin_current_node[0]=="Nand":
-									tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
+		# 	#print(tempNodeOutput)						
 
-								# print (path[i],tempNodeOutput[path[i]])
+		# print(tempNodeOutput)
+		# NodeOutputs.append(tempNodeOutput)
 
-								if not (tempNodeOutput[path[i]]==D or tempNodeOutput[path[i]]==DBAR):
-									break
+	def recursive_propagate(self,current_node,Fanin,tempNodeOutput):
+
+		paths=[]
+		p1=[]
+		pathFinder(self._Fanout,current_node,paths,p1)
+		# print(current_node)
+		# print(tempNodeOutput)
+		# print(paths)
+		vectors=[]
+		for path in paths:
+
+			if len(self._Fanout[path[0]])==0:
+				return tempNodeOutput
+
+			else:
+				fanin_next_node=Fanin[path[1]]
+
+				if fanin_next_node[0]=="And" or fanin_next_node[0]=="Nand":
+					if fanin_next_node[1]==path[0]:
+
+						if tempNodeOutput[fanin_next_node[2]]== X:	
+
+							# print("going for two choices")
+							##################recursion for 1st decision########################
+							tempNodeOutput_copy=deepcopy(tempNodeOutput)
+							tempNodeOutput_copy[fanin_next_node[2]]=ONE	
+
+							tempNodeOutput_copy[path[1]]= tempNodeOutput[fanin_next_node[1]] 
+
+							if fanin_next_node[0]=="Nand":
+								tempNodeOutput_copy[path[1]]=~tempNodeOutput_copy[path[1]]
+
+							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput_copy)
+
+							# print("choice 1 ans:",vector)
+							if not (vector==-1):
+								vectors.append(vector)
+
+
+							#################recursion for second decision##########################
+							tempNodeOutput_copy=deepcopy(tempNodeOutput)
+							tempNodeOutput_copy[fanin_next_node[2]]=tempNodeOutput[fanin_next_node[1]]	
+
+							tempNodeOutput_copy[path[1]]= tempNodeOutput[fanin_next_node[1]] 
+
+							if fanin_next_node[0]=="Nand":
+								tempNodeOutput_copy[path[1]]=~tempNodeOutput_copy[path[1]]
+
+							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput_copy)
+
+							# print("choice 2 ans:",vector)
+
+							if not (vector==-1 or len(vector)==0 ):
+								vectors.append(vector)
+
+							####################################################################
+	
 
 						else:
 
+							tempNodeOutput[path[1]]= tempNodeOutput[fanin_next_node[1]] & tempNodeOutput[fanin_next_node[2]]
 
-							if tempNodeOutput[fanin_current_node[1]]== X:	
-
-								tempNodeOutput[fanin_current_node[1]]=RothVariable(1,1)	
-
-								tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[2]] 
-
-								if fanin_current_node[0]=="Nand":
-									tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
-								# print (path[i],tempNodeOutput[path[i]])
-
-							else:
-
-								tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] | tempNodeOutput[fanin_current_node[2]]
-
-								if fanin_current_node[0]=="Nand":
-									tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
-
-								# print (path[i],tempNodeOutput[path[i]])
-
-								if not (tempNodeOutput[path[i]]==D or tempNodeOutput[path[i]]==DBAR):
-									break
+							if fanin_next_node[0]=="Nand":
+								tempNodeOutput[path[1]]=~tempNodeOutput[path[1]]
 
 
-					############################# if operation is Or or NOR####################################
-					elif fanin_current_node[0]=="Or" or fanin_current_node[0]=="Nor":
-						if fanin_current_node[1]==path[i-1]:
+							if not (tempNodeOutput[path[1]]==D or tempNodeOutput[path[1]]==DBAR):
+								return -1
 
-							if tempNodeOutput[fanin_current_node[2]]== X:	## should add equality operator overload in class
+							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput)
+							if not (vector==-1 or len(vector==0)):
+								vectors.append(vector)
 
-								tempNodeOutput[fanin_current_node[2]]=ZERO	
-
-								tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] 
-
-								if fanin_current_node[0]=="Nor":
-									tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
-
-								#print (path[i],tempNodeOutput[path[i]])
+		return vectors
 
 
-							else:
-
-								tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] & tempNodeOutput[fanin_current_node[2]]
-
-								if fanin_current_node[0]=="Nor":
-									tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
-
-								#print (path[i],tempNodeOutput[path[i]])
-
-								if not (tempNodeOutput[path[i]]==D or tempNodeOutput[path[i]]==DBAR):
-									break
-
-						else:
-
-							if tempNodeOutput[fanin_current_node[1]]== X:	## should add equality operator overload in class
-
-								tempNodeOutput[fanin_current_node[1]]=ZERO	
-
-								tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[2]] 
-
-								if fanin_current_node[0]=="Nor":
-									tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
-
-								#print (path[i],tempNodeOutput[path[i]])
-
-
-
-							else:
-
-
-								tempNodeOutput[path[i]]= tempNodeOutput[fanin_current_node[1]] | tempNodeOutput[fanin_current_node[2]]
-
-								if fanin_current_node[0]=="Nor":
-									tempNodeOutput[path[i]]=~tempNodeOutput[path[i]]
-
-								#print (path[i],tempNodeOutput[path[i]])
-
-								if not (tempNodeOutput[path[i]]==D or tempNodeOutput[path[i]]==DBAR):
-									break
-
-					elif fanin_current_node[0]=="Not":
-						tempNodeOutput[path[i]]=~tempNodeOutput[path[i-1]]
-
-
-			#print(tempNodeOutput)						
-
-		NodeOutputs.append(tempNodeOutput)
 
 
 	def setOutputs(self,outputs):
@@ -255,7 +343,7 @@ def backTrace(tree,NodeOutputs,no_inputs):
 
 			tree.setOutputs(NodeOutputs[i])
 			backTraceList=[j for j in range(no_inputs-1,len(NodeOutputs[i])) if NodeOutputs[i][j]==ONE or NodeOutputs[i][j]==ZERO]
-			# print(backTraceList)
+			print(backTraceList)
 			while not(len(backTraceList)==0):
 
 				current_node=tree.getNode(backTraceList[0])
@@ -264,21 +352,23 @@ def backTrace(tree,NodeOutputs,no_inputs):
 
 				if current_node.getOperation()=="And" or current_node.getOperation()=="Nand":
 
-					# print("here")
+					
 					if current_node.getOutput()==ONE:
-
+						# print("here")
 						current_node_inputs=current_node.getInputs()
 
 						# print(current_node)
-						# print(current_node_inputs[1].getNumber())
-						# print(tempNodeOutput[0])
+
 						if current_node_inputs[0].getOutput()==X and current_node_inputs[1].getOutput()==X:
 							tempNodeOutput[current_node_inputs[0].getNumber()]=ONE
 							tempNodeOutput[current_node_inputs[1].getNumber()]=ONE
 							backTraceList.append(current_node_inputs[0].getNumber())
 							backTraceList.append(current_node_inputs[1].getNumber())
 						else:
-							return -1
+
+							if not(current_node_inputs[0].getOutput()==ONE and \
+								current_node_inputs[1].getOutput()==ONE):
+								return -1
 
 					else:
 
@@ -332,14 +422,14 @@ def backTrace(tree,NodeOutputs,no_inputs):
 
  
 
-Fanin=[None,None,None,None,["And",0,1],["And",4,2],["And",5,3],["And",6,3]]
+Fanin=[None,None,None,None,["And",0,1],["And",4,1],["And",2,3],["And",4,5],["And",7,6]]
 
 #################some temp global variables#######################
 paths = []																	#Final path
 p1=[]																		#temp path		
 NodeOutputs=[]			
 ####################################################################
-def pathFinder(Fanout,n):
+def pathFinder(Fanout,n,paths,p1):
 	# global path
 	# global p1
 	p1.append(n)   															#append current node
@@ -349,31 +439,40 @@ def pathFinder(Fanout,n):
 		p1.pop()															#pop last node
 		return 
 	for i in range(len(Fanout[n])):
-		pathFinder(Fanout,Fanout[n][i])   									#next Fanout of current node
+		pathFinder(Fanout,Fanout[n][i],paths,p1)   									#next Fanout of current node
 	p1.pop()																#pop last node
 	return
-
 
 tree=CircuitTree()
 
 tree.createTree(Fanin)
 tree.createFanout(Fanin)
 
-print(tree)
+# pathFinder(tree._Fanout,5,paths,p1)
+# print(paths)
 
-tree.displayFanout()
+# pathFinder(tree._Fanout,6,paths,p1)
+# print(paths)
 
-path=[]
-paths=[]
-#pathFinder(tree._Fanout,4)
 
-tree.propagate(2,0,Fanin)
+
+# print(tree)
+
+# tree.displayFanout()
+
+# path=[]
+# paths=[]
+
+
+
+
+NodeOutputs=tree.propagate(4,0,Fanin)
 
 print(NodeOutputs)
 
-finalAssignments=backTrace(tree,NodeOutputs,4)
+# finalAssignments=backTrace(tree,NodeOutputs,4)
 
-print(finalAssignments)
+# print(finalAssignments)
 
 
 
