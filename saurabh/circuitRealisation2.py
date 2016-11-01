@@ -230,6 +230,7 @@ def PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault):
 			if tempNodeOutput not in vectors:
 				vectors.append(tempNodeOutput)
 
+	print "vectors",vectors
 	return vectors
 
 
@@ -363,17 +364,33 @@ def pathFinder(Fanout,n,paths,p1):
 		p1.pop()															#pop last node
 		return 
 	for i in range(len(Fanout[n])):
-		pathFinder(Fanout,Fanout[n][i],paths,p1)   									#next Fanout of current node
+		pathFinder(Fanout,Fanout[n][i],paths,p1)   							#next Fanout of current node
 	p1.pop()																#pop last node
 	return
+
+def d_intersection(a,b):
+	if (len(a)!=len(b)):
+		return None
+	else:
+		new=[]
+		for i in range(len(a)-1): 
+			if a[i]==RothVariable('X','X'):
+				p.append(b[i])
+			elif b[i]==RothVariable('X','X'):
+				p.append(a[i])
+			else:
+				return None
+		return new	
+
 Fanin=[None,None,None,None,["And",0,1],["And",2,3],["And",4,5],["And",6,5],["And",7,3]]
+#Fanin=[None,None,None,["And",0,1],["And",2,3],["And",4,0],["And",5,2]]
 
 #################some temp global variables#######################
 paths = []																	#Final path
 p1=[]																		#temp path		
 NodeOutputs=[]	
-no_inputs=4		
-stuckAtFault=0
+no_inputs=3		
+stuckAtFault=1
 stuckAtNode=4
 ####################################################################
 
@@ -390,7 +407,7 @@ print(NodeOutputs)
 
 NodeOutputs=PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault)
 
-print("after pretraeback:",NodeOutputs)
+print("after pretraceback:",NodeOutputs)
 
 
 finalAssignments=backTrace(tree,NodeOutputs,no_inputs)
