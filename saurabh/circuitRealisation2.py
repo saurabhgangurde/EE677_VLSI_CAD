@@ -1,4 +1,3 @@
-
 #from pyeda.inter import*
 from RothAlgebra import RothVariable
 from copy import deepcopy
@@ -213,11 +212,22 @@ def PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault):
 	if stuckAtFault==0:
 
 		if operation=="And":
-			inputs_desired_outputs=[[RothVariable(1,1),RothVariable(1,1)]]
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ONE
+			tempNodeOutput[faultNode_inputs[1].getNumber()]=ONE
+			inputs_desired_outputs=[tempNodeOutput]
 
 	else:
 		if operation=="And":
-			inputs_desired_outputs=[[RothVariable('X','X'),RothVariable(0,0)],[RothVariable(0,0),RothVariable('X','X')]]
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ZERO
+			tempNodeOutput[faultNode_inputs[1].getNumber()]=X
+
+			tempNodeOutput1=[X for i in range(len(tree._nodes))]
+			tempNodeOutput1[faultNode_inputs[0].getNumber()]=X
+			tempNodeOutput1[faultNode_inputs[1].getNumber()]=ZERO
+
+			inputs_desired_outputs=[tempNodeOutput,tempNodeOutput1]
 
 
 
@@ -225,12 +235,12 @@ def PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault):
 
 		for outputs in inputs_desired_outputs:
 			tempNodeOutput=entry
-			tempNodeOutput[faultNode_inputs[0].getNumber()]=outputs[0]
-			tempNodeOutput[faultNode_inputs[1].getNumber()]=outputs[1]
-			if tempNodeOutput not in vectors:
-				vectors.append(tempNodeOutput)
+			tempNodeOutput=d_intersection(entry,outputs)
 
-	print "vectors",vectors
+			if tempNodeOutput!=None:				
+				if tempNodeOutput not in vectors:
+					vectors.append(tempNodeOutput)
+
 	return vectors
 
 
@@ -372,15 +382,15 @@ def d_intersection(a,b):
 	if (len(a)!=len(b)):
 		return None
 	else:
-		new=[]
-		for i in range(len(a)-1): 
+		intersected_output=[]
+		for i in range(len(a)): 
 			if a[i]==RothVariable('X','X'):
-				p.append(b[i])
+				intersected_output.append(b[i])
 			elif b[i]==RothVariable('X','X'):
-				p.append(a[i])
+				intersected_output.append(a[i])
 			else:
 				return None
-		return new	
+		return intersected_output	
 
 Fanin=[None,None,None,None,["And",0,1],["And",2,3],["And",4,5],["And",6,5],["And",7,3]]
 #Fanin=[None,None,None,["And",0,1],["And",2,3],["And",4,0],["And",5,2]]
@@ -389,8 +399,8 @@ Fanin=[None,None,None,None,["And",0,1],["And",2,3],["And",4,5],["And",6,5],["And
 paths = []																	#Final path
 p1=[]																		#temp path		
 NodeOutputs=[]	
-no_inputs=3		
-stuckAtFault=1
+no_inputs=4		
+stuckAtFault=0
 stuckAtNode=4
 ####################################################################
 
