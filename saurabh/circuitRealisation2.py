@@ -223,7 +223,7 @@ class CircuitTree(object):
 							tempNodeOutput_copy[path[1]]= tempNodeOutput[fanin_next_node[2]] 
 
 							if fanin_next_node[0]=="Nand":
-								tempNodeOutput_copy[path[1]]=~tempNodeOutput_copy[path[1]]
+								tempNodeOutput_copy[path[1]]= ~tempNodeOutput_copy[path[1]]
 
 							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput_copy)
 
@@ -276,6 +276,139 @@ class CircuitTree(object):
 									vectors.append(entry)
 
 
+			#################################### OR NOR #################################################
+				if fanin_next_node[0]=="Or" or fanin_next_node[0]=="Nor":
+					if fanin_next_node[1]==path[0]:
+
+						if tempNodeOutput[fanin_next_node[2]]== X:	
+
+							#print("going for two choices")
+							##################recursion for 1st decision########################
+							tempNodeOutput_copy=deepcopy(tempNodeOutput)
+							tempNodeOutput_copy[fanin_next_node[2]]=ZERO	
+
+							tempNodeOutput_copy[path[1]]= tempNodeOutput[fanin_next_node[1]] 
+
+							if fanin_next_node[0]=="Nor":
+								tempNodeOutput_copy[path[1]]=~tempNodeOutput_copy[path[1]]
+
+							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput_copy)
+
+							#print("choice 1 ans:",vector)
+							if not (vector==-1 or len(vector)==0):
+
+								for entry in vector:
+									#print("appending vector:",entry)
+									vectors.append(entry)
+
+							
+							if self.getNode(fanin_next_node[2]).isInPath():
+								#################recursion for second decision##########################
+								tempNodeOutput_copy=deepcopy(tempNodeOutput)
+								tempNodeOutput_copy[fanin_next_node[2]]=tempNodeOutput[fanin_next_node[1]]	
+
+								tempNodeOutput_copy[path[1]]= tempNodeOutput[fanin_next_node[1]] 
+
+								if fanin_next_node[0]=="Nor":
+									tempNodeOutput_copy[path[1]]=~tempNodeOutput_copy[path[1]]
+
+								vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput_copy)
+
+								#print("choice 2 ans:",vector)
+
+								if not (vector==-1 or len(vector)==0 ):
+									for entry in vector:
+										#print("appending vector:",entry)
+										vectors.append(entry)
+									
+
+						###################################################################
+	
+
+						else:
+
+							tempNodeOutput[path[1]]= tempNodeOutput[fanin_next_node[1]] | tempNodeOutput[fanin_next_node[2]]
+
+							if fanin_next_node[0]=="Nor":
+								tempNodeOutput[path[1]]=~tempNodeOutput[path[1]]
+
+
+							if not (tempNodeOutput[path[1]]==D or tempNodeOutput[path[1]]==DBAR):
+								return -1
+
+							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput)
+							if not (vector==-1 or len(vector)==0):
+								for entry in vector:
+									#print("appending vector:",entry)
+									vectors.append(entry)
+					##########################################if required input is fanin_next_node[2]########################
+
+					else:
+
+						if tempNodeOutput[fanin_next_node[1]]== X:	
+
+							#print("going for two choices")
+							##################recursion for 1st decision########################
+							tempNodeOutput_copy=deepcopy(tempNodeOutput)
+							tempNodeOutput_copy[fanin_next_node[1]]=ZERO	
+
+							tempNodeOutput_copy[path[1]]= tempNodeOutput[fanin_next_node[2]] 
+
+							if fanin_next_node[0]=="Nor":
+								tempNodeOutput_copy[path[1]]=~tempNodeOutput_copy[path[1]]
+
+							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput_copy)
+
+							#print("choice 1 ans:",vector)
+							if not (vector==-1 or len(vector)==0):
+
+								for entry in vector:
+									#print("appending vector:",entry)
+									vectors.append(entry)
+
+							
+							if self.getNode(fanin_next_node[1]).isInPath():
+								#################recursion for second decision##########################
+								tempNodeOutput_copy=deepcopy(tempNodeOutput)
+								tempNodeOutput_copy[fanin_next_node[1]]=tempNodeOutput[fanin_next_node[2]]	
+
+								tempNodeOutput_copy[path[1]]= tempNodeOutput[fanin_next_node[2]] 
+
+								if fanin_next_node[0]=="Nand":
+									tempNodeOutput_copy[path[1]]=~tempNodeOutput_copy[path[1]]
+
+								vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput_copy)
+
+								#print("choice 2 ans:",vector)
+
+								if not (vector==-1 or len(vector)==0 ):
+									for entry in vector:
+										#print("appending vector:",entry)
+										vectors.append(entry)
+								
+
+						###################################################################
+	
+
+						else:
+
+							tempNodeOutput[path[1]]= tempNodeOutput[fanin_next_node[1]] | tempNodeOutput[fanin_next_node[2]]
+
+							if fanin_next_node[0]=="Nor":
+								tempNodeOutput[path[1]]=~tempNodeOutput[path[1]]
+
+
+							if not (tempNodeOutput[path[1]]==D or tempNodeOutput[path[1]]==DBAR):
+								return -1
+
+							vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput)
+							if not (vector==-1 or len(vector)==0):
+								for entry in vector:
+									#print("appending vector:",entry)
+									vectors.append(entry)
+
+
+
 		return vectors
 
 
@@ -302,6 +435,35 @@ def PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault):
 			tempNodeOutput[faultNode_inputs[1].getNumber()]=ONE
 			inputs_desired_outputs=[tempNodeOutput]
 
+		elif operation=="Nand":
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ZERO
+			tempNodeOutput[faultNode_inputs[1].getNumber()]=X
+
+			tempNodeOutput1=[X for i in range(len(tree._nodes))]
+			tempNodeOutput1[faultNode_inputs[0].getNumber()]=X
+			tempNodeOutput1[faultNode_inputs[1].getNumber()]=ZERO
+
+			inputs_desired_outputs=[tempNodeOutput,tempNodeOutput1]
+
+		elif operation=="Or":
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ONE
+			tempNodeOutput[faultNode_inputs[1].getNumber()]=X
+
+			tempNodeOutput1=[X for i in range(len(tree._nodes))]
+			tempNodeOutput1[faultNode_inputs[0].getNumber()]=X
+			tempNodeOutput1[faultNode_inputs[1].getNumber()]=ONE
+
+			inputs_desired_outputs=[tempNodeOutput,tempNodeOutput1]
+
+		elif operation=="Nor":
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ZERO
+			tempNodeOutput[faultNode_inputs[1].getNumber()]=ZERO
+			inputs_desired_outputs=[tempNodeOutput]
+
+
 	else:
 		if operation=="And":
 			tempNodeOutput=[X for i in range(len(tree._nodes))]
@@ -314,6 +476,29 @@ def PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault):
 
 			inputs_desired_outputs=[tempNodeOutput,tempNodeOutput1]
 
+
+		elif operation=="Nand":
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ONE
+			tempNodeOutput[faultNode_inputs[1].getNumber()]=ONE
+			inputs_desired_outputs=[tempNodeOutput]
+
+		elif operation=="Or":
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ZERO
+			tempNodeOutput[faultNode_inputs[1].getNumber()]=ZERO
+			inputs_desired_outputs=[tempNodeOutput]
+
+		elif operation=="Nor":
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ONE
+			tempNodeOutput[faultNode_inputs[1].getNumber()]=X
+
+			tempNodeOutput1=[X for i in range(len(tree._nodes))]
+			tempNodeOutput1[faultNode_inputs[0].getNumber()]=X
+			tempNodeOutput1[faultNode_inputs[1].getNumber()]=ONE
+
+			inputs_desired_outputs=[tempNodeOutput,tempNodeOutput1]
 
 
 	for entry in NodeOutputs:
@@ -336,7 +521,7 @@ def backTrace(tree,NodeOutputs,no_inputs):
 
 	for i in range(len(NodeOutputs)):
 
-		print i,NodeOutputs[i]
+		#print i,NodeOutputs[i]
 
 		tempNodeOutputs=NodeOutputs[i]
 		tempOutputAssignments=[]
@@ -345,21 +530,32 @@ def backTrace(tree,NodeOutputs,no_inputs):
 		backTraceList=[j for j in range(no_inputs,len(tempNodeOutputs)) if tempNodeOutputs[j]==ONE or tempNodeOutputs[j]==ZERO]
 
 		
-		print "backlist",backTraceList
+		#print "backlist",backTraceList
 		tempNodeOutputs=[tempNodeOutputs]
-		while not(len(backTraceList)==0):
 
-			current_node=tree.getNode(backTraceList[0])
-	
+		while not(len(tempNodeOutputs)==0)  :
 
-			del backTraceList[0]
-			while not(len(tempNodeOutputs)==0):
-				
+			
+			while not(len(backTraceList)==0):
+
+				tree.setOutputs(tempNodeOutputs[0])
+
+				current_node=tree.getNode(backTraceList[0])
+
+				del backTraceList[0]
+
+				current_node_inputs=current_node.getInputs()
+
 				if current_node.getOperation()=="And" or current_node.getOperation()=="Nand":
 
-					current_node_inputs=current_node.getInputs()
 
-					if current_node.getOutput()==ONE:
+					#print current_node, current_node.getOutput()
+					if current_node.getOperation()=="And":
+						current_node_psuedo_output= current_node.getOutput()
+					else:
+						current_node_psuedo_output= ~current_node.getOutput()
+
+					if current_node_psuedo_output==ONE :
 
 						if ((current_node_inputs[0].getOutput()==X and current_node_inputs[1].getOutput()==X)\
 							or (current_node_inputs[0].getOutput()==X and current_node_inputs[1].getOutput()==ONE)\
@@ -374,6 +570,7 @@ def backTrace(tree,NodeOutputs,no_inputs):
 							if current_node_inputs[1].getNumber() not in backTraceList:
 								backTraceList.append(current_node_inputs[1].getNumber())
 
+							#print " and backtrace", tempNodeOutputs[0] , backTraceList
 							tempOutputAssignments.append(tempNodeOutputs[0])
 
 
@@ -436,8 +633,96 @@ def backTrace(tree,NodeOutputs,no_inputs):
 							#tempOutputAssignments.append(tempNodeOutputs[0])
 							break
 
+		#################################backtrace for OR NOR#############################################
+
+				if current_node.getOperation()=="Or" or current_node.getOperation()=="Nor":
+
+
+					if current_node.getOperation()=="Or":
+						current_node_psuedo_output= current_node.getOutput()
+					else:
+						current_node_psuedo_output= ~current_node.getOutput()
+
+
+					if current_node_psuedo_output==ZERO:
+
+						if ((current_node_inputs[0].getOutput()==X and current_node_inputs[1].getOutput()==X)\
+							or (current_node_inputs[0].getOutput()==X and current_node_inputs[1].getOutput()==ZERO)\
+							or (current_node_inputs[0].getOutput()==ZERO and current_node_inputs[1].getOutput()==X)):
+
+							tempNodeOutputs[0][current_node_inputs[0].getNumber()]=ZERO
+							tempNodeOutputs[0][current_node_inputs[1].getNumber()]=ZERO
+
+							if current_node_inputs[0].getNumber() not in backTraceList:
+								backTraceList.append(current_node_inputs[0].getNumber())
+
+							if current_node_inputs[1].getNumber() not in backTraceList:
+								backTraceList.append(current_node_inputs[1].getNumber())
+
+							tempOutputAssignments.append(tempNodeOutputs[0])
+
+
+						else:
+							#tempOutputAssignments.append(tempNodeOutputs[0])
+							break
+
+					else:
+
+						if (current_node_inputs[0].getOutput()==X and current_node_inputs[1].getOutput()==X):
+							tempNodeOutputs[0][current_node_inputs[0].getNumber()]=ONE
+							tempNodeOutputs[0][current_node_inputs[1].getNumber()]=X
+
+							tempNodeOutputs_copy1=deepcopy(tempNodeOutputs[0])
+							tree_copy1=deepcopy(tree)
+
+							list1=backTrace(tree_copy1,[tempNodeOutputs_copy1],no_inputs)
+
+
+							tempNodeOutputs[0][current_node_inputs[0].getNumber()]=X
+							tempNodeOutputs[0][current_node_inputs[1].getNumber()]=ONE
+
+							tempNodeOutputs_copy1=deepcopy(tempNodeOutputs[0])
+							tree_copy1=deepcopy(tree)
+
+							list2=backTrace(tree_copy1,[tempNodeOutputs_copy1],no_inputs)
+
+							if not (list1==-1):
+								for entry in list1:
+									if entry not in tempOutputAssignments: 
+										tempOutputAssignments.append(entry)
+
+							if not (list2==-1):
+								for entry in list2:
+									if entry not in tempOutputAssignments: 
+										tempOutputAssignments.append(entry)
+
+						elif current_node_inputs[1].getOutput()==X:
+
+							if current_node_inputs[0].getOutput()==ZERO:
+
+								tempNodeOutputs[0][current_node_inputs[1].getNumber()]=ONE
+								backTraceList.append(current_node_inputs[1].getNumber())
+								tempOutputAssignments.append(tempNodeOutputs[0])
+							else:
+								tempOutputAssignments.append(tempNodeOutputs[0])
+
+
+						elif(current_node_inputs[0].getOutput()==X ):
+
+							if current_node_inputs[1].getOutput()==ZERO:
+								tempNodeOutputs[0][current_node_inputs[0].getNumber()]=ONE
+								backTraceList.append(current_node_inputs[0].getNumber())
+								tempOutputAssignments.append(tempNodeOutputs[0])
+							else:
+								tempOutputAssignments.append(tempNodeOutputs[0])
+
+
+						else:
+							#tempOutputAssignments.append(tempNodeOutputs[0])
+							break
+
 				
-				del tempNodeOutputs[0]
+			del tempNodeOutputs[0]
 
 		# 	print(tempOutputAssignments)
 		# print(tempOutputAssignments)
@@ -493,14 +778,14 @@ def d_intersection(a,b):
 				return None
 		return intersected_output	
 
-Fanin=[None,None,None,None,["And",0,1],["And",2,3],["And",4,5],["And",6,5],["And",7,3]]
+Fanin=[None,None,None,["Or",0,1],["Nand",3,1],["And",4,2],["Nor",0,5],["Nand",6,2],["And",7,5]]
 
 
 #################some temp global variables#######################
 paths = []																	#Final path
 p1=[]																		#temp path		
 NodeOutputs=[]	
-no_inputs=4		
+no_inputs=3		
 stuckAtFault=1
 stuckAtNode=5
 ####################################################################
@@ -511,7 +796,7 @@ tree=CircuitTree()
 tree.createTree(Fanin)
 tree.createFanout(Fanin)
 
-
+print tree
 NodeOutputs=tree.propagate(stuckAtNode,stuckAtFault,Fanin)
 
 print(NodeOutputs)
@@ -532,4 +817,3 @@ for entry in testVectors:
 			testVectors.remove(entry)
 			break
 print("test vectors:", testVectors)
-

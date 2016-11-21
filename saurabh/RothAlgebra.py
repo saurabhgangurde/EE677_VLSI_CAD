@@ -68,8 +68,8 @@ class RothVariable(object):
 
 
 # a=[]
-d=RothVariable(1,0,'D')
-b=~d
+# d=RothVariable(1,0,'D')
+# b=~d
 # a=[b,d]
 # c=[b,d,b]
 # #print(b)
