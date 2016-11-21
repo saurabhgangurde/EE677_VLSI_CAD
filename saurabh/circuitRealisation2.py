@@ -29,7 +29,10 @@ class Node(object):
 		return self._output
 
 	def getInputs(self):
-		return [self._input1,self._input2]
+		if self._input2==None:
+			return [self._input1]
+		else:
+			return [self._input1,self._input2]
 
 	def getOperation(self):
 		return self._operation
@@ -69,6 +72,7 @@ class CircuitTree(object):
 		for i in range(len(Fanin)):
 
 			gate=Fanin[i]
+			#print i,Fanin[i]
 			if gate==None:
 				self._nodes.append(Node(i))
 			elif len(gate)==2:
@@ -144,6 +148,16 @@ class CircuitTree(object):
 
 			else:
 				fanin_next_node=Fanin[path[1]]
+
+				if fanin_next_node[0]=="Not":
+					tempNodeOutput[path[1]]= ~tempNodeOutput[fanin_next_node[1]]
+					vector=self.recursive_propagate(path[1],Fanin,tempNodeOutput)
+					if not (vector==-1 or len(vector)==0):
+						for entry in vector:
+							#print("appending vector:",entry)
+							vectors.append(entry)
+
+					
 
 				if fanin_next_node[0]=="And" or fanin_next_node[0]=="Nand":
 					if fanin_next_node[1]==path[0]:
@@ -429,6 +443,11 @@ def PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault):
 
 	if stuckAtFault==0:
 
+		if operation=="Not":
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ZERO
+			inputs_desired_outputs=[tempNodeOutput]
+
 		if operation=="And":
 			tempNodeOutput=[X for i in range(len(tree._nodes))]
 			tempNodeOutput[faultNode_inputs[0].getNumber()]=ONE
@@ -465,6 +484,11 @@ def PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault):
 
 
 	else:
+		if operation=="Not":
+			tempNodeOutput=[X for i in range(len(tree._nodes))]
+			tempNodeOutput[faultNode_inputs[0].getNumber()]=ONE
+			inputs_desired_outputs=[tempNodeOutput]
+
 		if operation=="And":
 			tempNodeOutput=[X for i in range(len(tree._nodes))]
 			tempNodeOutput[faultNode_inputs[0].getNumber()]=ZERO
@@ -545,6 +569,22 @@ def backTrace(tree,NodeOutputs,no_inputs):
 				del backTraceList[0]
 
 				current_node_inputs=current_node.getInputs()
+				if current_node.getOperation()=="Not":
+					if current_node_inputs[0].getOutput()==X:
+
+						if current_node.getOutput()==ONE:
+							tempNodeOutputs[0][current_node_inputs[0].getNumber()]=ZERO
+							if current_node_inputs[0].getNumber() not in backTraceList:
+								backTraceList.append(current_node_inputs[0].getNumber())
+							tempOutputAssignments.append(tempNodeOutputs[0])
+
+						else:
+							tempNodeOutputs[0][current_node_inputs[0].getNumber()]=ONE
+							if current_node_inputs[0].getNumber() not in backTraceList:
+								backTraceList.append(current_node_inputs[0].getNumber())
+							tempOutputAssignments.append(tempNodeOutputs[0])
+					else:
+						break
 
 				if current_node.getOperation()=="And" or current_node.getOperation()=="Nand":
 
@@ -776,18 +816,18 @@ def d_intersection(a,b):
 				intersected_output.append(a[i])
 			else:
 				return None
-		return intersected_output	
+		return intersected_output
 
-Fanin=[None,None,None,["Or",0,1],["Nand",3,1],["And",4,2],["Nor",0,5],["Nand",6,2],["And",7,5]]
+Fanin=[None,None,None,["Or",0,1],["Nand",3,1],["And",4,2],["Nor",0,5],["Nand",6,2],["And",7,5],["Not",6],["Not",9]]
 
 
 #################some temp global variables#######################
 paths = []																	#Final path
-p1=[]																		#temp path		
-NodeOutputs=[]	
-no_inputs=3		
-stuckAtFault=1
-stuckAtNode=5
+p1=[]																		#temp path
+NodeOutputs=[]
+no_inputs=3
+stuckAtFault=0
+stuckAtNode=10
 ####################################################################
 
 
