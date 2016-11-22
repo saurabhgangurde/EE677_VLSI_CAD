@@ -441,6 +441,10 @@ def PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault):
 	operation=faultNode.getOperation()
 	faultNode_inputs=faultNode.getInputs()
 
+	if operation==None:
+		#print "\n","yo",NodeOutputs
+		return NodeOutputs
+
 	if stuckAtFault==0:
 
 		if operation=="Not":
@@ -782,9 +786,11 @@ def findTestVectors(NodeOutputs,no_inputs):
  		tempTestVector=[]
  		for i in range(no_inputs):
  			tempTestVector.append(str(entry[i]))
+ 			#print tempTestVector
 
  		if tempTestVector not in testVectors:
  			testVectors.append(tempTestVector)
+ 			print "yo",testVectors
  	return testVectors
 
 def pathFinder(Fanout,n,paths,p1):
@@ -827,7 +833,7 @@ p1=[]																		#temp path
 NodeOutputs=[]
 no_inputs=3
 stuckAtFault=0
-stuckAtNode=10
+stuckAtNode=1
 ####################################################################
 
 
@@ -839,11 +845,11 @@ tree.createFanout(Fanin)
 print tree
 NodeOutputs=tree.propagate(stuckAtNode,stuckAtFault,Fanin)
 
-print(NodeOutputs)
+#print(NodeOutputs)
 
 NodeOutputs=PrebackTrace(tree,NodeOutputs,stuckAtNode,stuckAtFault)
 
-print("after pretraceback:",NodeOutputs)
+#print("after pretraceback:",NodeOutputs)
 
 
 finalAssignments=backTrace(tree,NodeOutputs,no_inputs)
@@ -851,9 +857,19 @@ print("after backtraceback:",finalAssignments)
 
 testVectors=findTestVectors(finalAssignments,no_inputs)
 
-for entry in testVectors:
-	for output in entry:
-		if output=='D' or output=="Dbar":
-			testVectors.remove(entry)
-			break
+if tree.getNode(stuckAtNode).getOperation()!=None:
+	for entry in testVectors:
+		for output in entry:
+			if output=="D" or output=="Dbar":
+				testVectors.remove(entry)
+				break
+else:
+	for entry in testVectors:
+		for i in range(len(entry)):
+			if i!=stuckAtNode:
+				if entry[i]=="D" or entry[i]=="Dbar":
+					testVectors.remove(entry)
+					break
+
+
 print("test vectors:", testVectors)
