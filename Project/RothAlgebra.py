@@ -18,8 +18,6 @@ class RothVariable(object):
 		else:
 			self.name='X'
 
-
-	################defining operations on Roth's Varibles using funtion overloading###############
 	def __and__(self,b):
 
 		if(self.name=='X' or b.name=='X'):
@@ -55,6 +53,7 @@ class RothVariable(object):
 			return RothVariable((self.correct | b.correct),(self.faulty | b.faulty) )
 
 	def __eq__(self,b):
+
 		if self.name==b.name:
 			return True
 		else:
@@ -71,13 +70,13 @@ class RothVariable(object):
 # a=[]
 # d=RothVariable(1,0,'D')
 # b=~d
-# a.append(b)
-# a.append(d)
-# print(a)
-# d=RothVariable('X','X','D')
+# a=[b,d]
+# c=[b,d,b]
+# #print(b)
+# # d=RothVariable('X','X','D')
 
-# print(b)
-# print(b==d)
+# # print(b)
+# print(a==b)
 # #print d & b
 
 # c=a & b & d
